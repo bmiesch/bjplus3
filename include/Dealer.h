@@ -20,6 +20,8 @@ public:
 
     void setBusted(bool val);
 
+    std::vector<Card> getHand();
+
 private:
     std::vector<Card> hand;
     int handValue;

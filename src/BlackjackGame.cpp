@@ -1,8 +1,8 @@
 #include "BlackjackGame.h"
-#include <iostream>
-#include <algorithm>
 
-BlackjackGame::BlackjackGame(int numPlayers, int numDecks, bool isPlus3) : fullDeck(numDecks), dealer(), isPlus3(isPlus3) {
+
+BlackjackGame::BlackjackGame(int numPlayers, int numDecks, bool isPlus3, bool standardBets)
+    : fullDeck(numDecks), dealer(), isPlus3(isPlus3), standardBets(standardBets) {
     for(int i = 0; i < numPlayers; i++) {
         players.push_back(Player());
     }
@@ -13,18 +13,25 @@ Card BlackjackGame::getCard() {
     return fullDeck.drawCard();
 }
 
+int BlackjackGame::askForBet(const std::string& prompt) {
+    std::cout << prompt << std::endl;
+    int bet;
+    while (!(std::cin >> bet)) {
+        std::cout << "Invalid input. Please enter a number: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+    return bet;
+}
+
 void BlackjackGame::getBets() {
-    for (int i = 0; i < players.size(); i++) {
-        std::cout << "Player " << i << ": How much would you like to bet?" << std::endl;
-        int bet;
-        std::cin >> bet;
-        players[i].setCurBet(bet);
-        
+    for (auto& player : players) {
+        int bet = standardBets ? 10 : askForBet("How much would you like to bet?");
+        player.setCurBet(bet);
+
         if (isPlus3) {
-            std::cout << "How much would you like to side bet?" << std::endl;
-            int sideBet;
-            std::cin >> sideBet;
-            players[i].setCurSideBet(sideBet);
+            int sideBet = standardBets ? 5 : askForBet("How much would you like to side bet?");
+            player.setCurSideBet(sideBet);
         }
     }
 }
@@ -55,7 +62,6 @@ void BlackjackGame::dealRound() {
         }
     }
 
-    // Deal cards to dealer if not all players are busted
     if (!allPlayersBusted) {
         dealCardsToDealer();
     } else {
@@ -90,23 +96,23 @@ void BlackjackGame::finishRound() {
         if (dealerBusted && !playerBusted) {
             std::cout << "Player wins " << player.getCurBet() << " chips!" << std::endl;
             player.addChips(player.getCurBet());
+            player.setOutcome("win");
         } else if (!playerBusted && playerValue > dealerValue) {
             std::cout << "Player wins " << player.getCurBet() << " chips!" << std::endl;
             player.addChips(player.getCurBet());
+            player.setOutcome("win");
         } else if (!playerBusted && playerValue == dealerValue) {
             std::cout << "Player ties!" << std::endl;
+            player.setOutcome("tie");
         } else {
             std::cout << "Player loses " << player.getCurBet() << " chips!" << std::endl;
             player.removeChips(player.getCurBet());
+            player.setOutcome("lose");
         }
-
-        player.reset();
     }
     for (std::size_t i = 0; i < players.size(); ++i) {
         std::cout << "Player " << i << " has " << players[i].getChips() << " chips" << std::endl;
     }
-
-    dealer.reset();
 }
 
 bool BlackjackGame::isStraight(Card card1, Card card2, Card card3) {
@@ -120,9 +126,6 @@ void BlackjackGame::plus3Check() {
     for (auto& player : players) {
         Card playerCard1 = player.getHand()[0];
         Card playerCard2 = player.getHand()[1];
-        std::cout << "Player card 1: " << playerCard1 << std::endl;
-        std::cout << "Player card 2: " << playerCard2 << std::endl;
-        std::cout << "Dealer card: " << dealerUpCard << std::endl;
 
         if ((playerCard1.getRank() == dealerUpCard.getRank() && playerCard2.getRank() == dealerUpCard.getRank())
             || (playerCard1.getSuit() == dealerUpCard.getSuit() && playerCard2.getSuit() == dealerUpCard.getSuit())
@@ -130,10 +133,12 @@ void BlackjackGame::plus3Check() {
 
             // Plus3 pays 9 to 1 on the side bet
             std::cout << "Side Bet: Player wins " << player.getCurSideBet() * 9 << " chips!" << std::endl;
+            player.setSideOutcome("win");
             player.addChips(player.getCurSideBet() * 9);
         }
         else {
             std::cout << "Side Bet: Player loses " << player.getCurSideBet() << " chips!" << std::endl;
+            player.setSideOutcome("lose");
             player.removeChips(player.getCurSideBet());
         }
     }
@@ -148,3 +153,65 @@ void BlackjackGame::play() {
     dealRound();
     finishRound();
 }
+
+void BlackjackGame::reset() {
+    for (auto& player : players) {
+        player.reset();
+    }
+    dealer.reset();
+}
+
+
+void BlackjackGame::logGameResult(int gameID) {
+    json result;
+
+    // Basic game information
+    result["gameID"] = gameID;
+    result["isPlus3"] = isPlus3;
+
+    // Dealer information
+    json dealerJson;
+    dealerJson["final_hand"] = dealer.getHandValue();
+    std::vector<std::string> dealerCards;
+    for (auto& card : dealer.getHand()) {
+        dealerCards.push_back(card.toString());
+    }
+    dealerJson["cards"] = dealerCards;
+    result["dealer"] = dealerJson;
+
+    // Players information
+    std::vector<nlohmann::ordered_json> playersJson;
+    for (auto& player : players) {
+        nlohmann::ordered_json playerJson;
+        playerJson["final_hand"] = player.getHandValue();
+        std::vector<std::string> cards;
+        for (auto& card : player.getHand()) {
+            cards.push_back(card.toString());
+        }
+        playerJson["cards"] = cards;
+        playerJson["main_outcome"] = player.getOutcome();
+        playerJson["main_bet"] = player.getCurBet();
+        if (isPlus3) {
+            playerJson["side_outcome"] = player.getSideOutcome();
+            playerJson["side_bet"] = player.getCurSideBet();
+        }
+        else {
+            playerJson["side_outcome"] = "";
+            playerJson["side_bet"] = 0;
+        }
+        playerJson["chips"] = player.getChips();
+        playersJson.push_back(playerJson);
+    }
+    result["players"] = playersJson;
+
+    // Write to buffer
+    resultsBuffer.push_back(result);
+}
+
+void BlackjackGame::writeResultsToFile() {
+    json output = {{"data", resultsBuffer}};
+    std::ofstream file("game_results.json", std::ios::app | std::ios::out);
+    file << output.dump(4);
+    file.close();
+}
+

@@ -34,6 +34,14 @@ public:
 
     int getCurSideBet();
 
+    std::string getOutcome();
+
+    void setOutcome(std::string val);
+
+    std::string getSideOutcome();
+
+    void setSideOutcome(std::string val);
+
 private:
     std::vector<Card> hand;
     int handValue;
@@ -42,6 +50,9 @@ private:
     int curBet;
     int curSideBet;
     int chips;
+    
+    std::string outcome;
+    std::string sideOutcome;
 };
 
 #endif // PLAYER_H
