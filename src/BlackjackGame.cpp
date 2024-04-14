@@ -1,9 +1,9 @@
 #include "BlackjackGame.h"
 
 
-BlackjackGame::BlackjackGame(int numPlayers, int numDecks, bool isPlus3, bool standardBets)
-    : fullDeck(numDecks), dealer(), isPlus3(isPlus3), standardBets(standardBets) {
-    for(int i = 0; i < numPlayers; i++) {
+BlackjackGame::BlackjackGame(const GameConfig& config)
+    : fullDeck(config.numDecks), dealer(), config(config) {
+    for (int i = 0; i < config.numPlayers; i++) {
         players.push_back(Player());
     }
     fullDeck.shuffle();
@@ -26,11 +26,11 @@ int BlackjackGame::askForBet(const std::string& prompt) {
 
 void BlackjackGame::getBets() {
     for (auto& player : players) {
-        int bet = standardBets ? 10 : askForBet("How much would you like to bet?");
+        int bet = config.standardBets ? 10 : askForBet("How much would you like to bet?");
         player.setCurBet(bet);
 
-        if (isPlus3) {
-            int sideBet = standardBets ? 5 : askForBet("How much would you like to side bet?");
+        if (config.isPlus3) {
+            int sideBet = config.standardBets ? 5 : askForBet("How much would you like to side bet?");
             player.setCurSideBet(sideBet);
         }
     }
@@ -147,7 +147,7 @@ void BlackjackGame::plus3Check() {
 void BlackjackGame::play() {
     getBets();
     dealInitialRound();
-    if (isPlus3) {
+    if (config.isPlus3) {
         plus3Check();
     }
     dealRound();
@@ -161,57 +161,10 @@ void BlackjackGame::reset() {
     dealer.reset();
 }
 
-
 void BlackjackGame::logGameResult(int gameID) {
-    json result;
-
-    // Basic game information
-    result["gameID"] = gameID;
-    result["isPlus3"] = isPlus3;
-
-    // Dealer information
-    json dealerJson;
-    dealerJson["final_hand"] = dealer.getHandValue();
-    std::vector<std::string> dealerCards;
-    for (auto& card : dealer.getHand()) {
-        dealerCards.push_back(card.toString());
-    }
-    dealerJson["cards"] = dealerCards;
-    result["dealer"] = dealerJson;
-
-    // Players information
-    std::vector<nlohmann::ordered_json> playersJson;
-    for (auto& player : players) {
-        nlohmann::ordered_json playerJson;
-        playerJson["final_hand"] = player.getHandValue();
-        std::vector<std::string> cards;
-        for (auto& card : player.getHand()) {
-            cards.push_back(card.toString());
-        }
-        playerJson["cards"] = cards;
-        playerJson["main_outcome"] = player.getOutcome();
-        playerJson["main_bet"] = player.getCurBet();
-        if (isPlus3) {
-            playerJson["side_outcome"] = player.getSideOutcome();
-            playerJson["side_bet"] = player.getCurSideBet();
-        }
-        else {
-            playerJson["side_outcome"] = "";
-            playerJson["side_bet"] = 0;
-        }
-        playerJson["chips"] = player.getChips();
-        playersJson.push_back(playerJson);
-    }
-    result["players"] = playersJson;
-
-    // Write to buffer
-    resultsBuffer.push_back(result);
+    logger.logGameResult(gameID, dealer, players, config.isPlus3);
 }
 
 void BlackjackGame::writeResultsToFile() {
-    json output = {{"data", resultsBuffer}};
-    std::ofstream file("game_results.json", std::ios::app | std::ios::out);
-    file << output.dump(4);
-    file.close();
+    logger.writeResultsToFile("game_results.json");
 }
-

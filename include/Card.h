@@ -11,12 +11,12 @@ public:
 
     Card(Suit s, Rank r);
 
-    Suit getSuit();
-    Rank getRank();
-    int getValue();
+    Suit getSuit() const;
+    Rank getRank() const;
+    int getValue() const;
 
     friend std::ostream& operator<<(std::ostream& os, const Card& card);
-    std::string toString();
+    std::string toString() const;
 
 private:
     Suit suit;

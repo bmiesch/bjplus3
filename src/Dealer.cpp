@@ -5,29 +5,31 @@ Dealer::Dealer() : hand(), handValue(0), busted(false) {}
 void Dealer::addCard(Card card) {
     std::cout << "Dealer Added Card: " << card << std::endl;
     hand.push_back(card);
-    handValue += card.getValue();
 
+    // Recalculate hand value from scratch
+    handValue = 0;
     int aceCount = 0;
-    // First pass: add all card values, count aces
-    for (Card& card : hand) {
-        if (card.getRank() == Card::ACE) {
+
+    for (const Card& c : hand) {
+        handValue += c.getValue();
+        if (c.getRank() == Card::ACE) {
             aceCount++;
         }
     }
 
-    // Second pass: adjust for aces if total value exceeds 21
     while (handValue > 21 && aceCount > 0) {
         handValue -= 10;
         aceCount--;
     }
+
     std::cout << "New value: " << handValue << std::endl;
 }
 
-int Dealer::getHandValue() {
+int Dealer::getHandValue() const {
     return handValue;
 }
 
-Card Dealer::getUpCard() {
+Card Dealer::getUpCard() const {
     if (hand.size() > 0) {
         return hand[0];
     }
@@ -42,7 +44,7 @@ void Dealer::reset() {
     busted = false;
 }
 
-bool Dealer::isBusted() {
+bool Dealer::isBusted() const {
     return busted;
 }
 
@@ -50,6 +52,6 @@ void Dealer::setBusted(bool val) {
     busted = val;
 }
 
-std::vector<Card> Dealer::getHand() {
+std::vector<Card> Dealer::getHand() const {
     return hand;
 }

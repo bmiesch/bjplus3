@@ -5,39 +5,40 @@ Player::Player() : hand(), handValue(0), busted(false), curBet(0), chips(100) {}
 void Player::addCard(Card card) {
     std::cout << "Player Added Card: " << card << std::endl;
     hand.push_back(card);
-    handValue += card.getValue();
 
+    // Recalculate hand value from scratch
+    handValue = 0;
     int aceCount = 0;
-    // First pass: add all card values, count aces
-    for (Card& card : hand) {
-        if (card.getRank() == Card::ACE) {
+
+    for (const Card& c : hand) {
+        handValue += c.getValue();
+        if (c.getRank() == Card::ACE) {
             aceCount++;
         }
     }
 
-    // Second pass: adjust for aces if total value exceeds 21
     while (handValue > 21 && aceCount > 0) {
         handValue -= 10;
         aceCount--;
     }
+
     std::cout << "New value: " << handValue << std::endl;
 }
-
 void Player::reset() {
     hand.clear();
     handValue = 0;
     busted = false;
 }
 
-std::vector<Card> Player::getHand() {
+std::vector<Card> Player::getHand() const {
     return hand;
 }
 
-int Player::getHandValue() {
+int Player::getHandValue() const {
     return handValue;
 }
 
-bool Player::isBusted() {
+bool Player::isBusted() const {
     return busted;
 }
 
@@ -45,7 +46,7 @@ void Player::setBusted(bool val) {
     busted = val;
 }
 
-int Player::getChips() {
+int Player::getChips() const {
     return chips;
 }
 
@@ -61,7 +62,7 @@ void Player::setCurBet(int val) {
     curBet = val;
 }
 
-int Player::getCurBet() {
+int Player::getCurBet() const {
     return curBet;
 }
 
@@ -69,11 +70,11 @@ void Player::setCurSideBet(int val) {
     curSideBet = val;
 }
 
-int Player::getCurSideBet() {
+int Player::getCurSideBet() const {
     return curSideBet;
 }
 
-std::string Player::getOutcome() {
+std::string Player::getOutcome() const {
     return outcome;
 }
 
@@ -81,7 +82,7 @@ void Player::setOutcome(std::string str) {
     outcome = str;
 }
 
-std::string Player::getSideOutcome() {
+std::string Player::getSideOutcome() const {
     return sideOutcome;
 }
 

@@ -12,15 +12,15 @@ public:
 
     void reset();
 
-    std::vector<Card> getHand();
+    std::vector<Card> getHand() const;
 
-    int getHandValue();
+    int getHandValue() const;
 
-    bool isBusted();
+    bool isBusted() const;
 
     void setBusted(bool val);
 
-    int getChips();
+    int getChips() const;
 
     void addChips(int val);
 
@@ -28,17 +28,17 @@ public:
 
     void setCurBet(int val);
 
-    int getCurBet();
+    int getCurBet() const;
 
     void setCurSideBet(int val);
 
-    int getCurSideBet();
+    int getCurSideBet() const;
 
-    std::string getOutcome();
+    std::string getOutcome() const;
 
     void setOutcome(std::string val);
 
-    std::string getSideOutcome();
+    std::string getSideOutcome() const;
 
     void setSideOutcome(std::string val);
 

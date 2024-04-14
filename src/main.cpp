@@ -1,7 +1,8 @@
 #include "BlackjackGame.h"
 
 int main() {
-    BlackjackGame game(1, 6, true, true);
+    const GameConfig config(1, 6, true, true);
+    BlackjackGame game(config);
     for (int i = 0; i < 10; i++) {
         game.play();
         game.logGameResult(i+1);

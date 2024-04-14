@@ -15,15 +15,15 @@ Card::Card(Suit s, Rank r) : suit(s), rank(r) {
     }
 }
 
-Card::Suit Card::getSuit() {
+Card::Suit Card::getSuit() const {
     return suit;
 }
 
-Card::Rank Card::getRank() {
+Card::Rank Card::getRank() const {
     return rank;
 }
 
-int Card::getValue() {
+int Card::getValue() const {
     return value;
 }
 
@@ -34,7 +34,7 @@ std::ostream& operator<<(std::ostream& os, const Card& card) {
     return os;
 }
 
-std::string Card::toString() {
+std::string Card::toString() const {
     const std::string suitNames[] = { "H", "D", "C", "S" };
     const std::string rankNames[] = { "", "", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
     return rankNames[static_cast<int>(rank)] + suitNames[static_cast<int>(suit)];

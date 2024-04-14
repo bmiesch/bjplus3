@@ -10,17 +10,17 @@ public:
 
     void addCard(Card card);
     
-    Card getUpCard();
+    Card getUpCard() const;
 
-    int getHandValue();
+    int getHandValue() const;
 
     void reset();
 
-    bool isBusted();
+    bool isBusted() const;
 
     void setBusted(bool val);
 
-    std::vector<Card> getHand();
+    std::vector<Card> getHand() const;
 
 private:
     std::vector<Card> hand;
