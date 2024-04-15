@@ -32,7 +32,7 @@ void GameLogger::logGameResult(int gameID, const Dealer& dealer, const std::vect
             playerJson["side_outcome"] = "";
             playerJson["side_bet"] = 0;
         }
-        playerJson["chips"] = player.getChips();
+        playerJson["bankroll"] = player.getBankroll();
         playersJson.push_back(playerJson);
     }
     result["players"] = playersJson;

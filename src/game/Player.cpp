@@ -1,6 +1,7 @@
 #include "Player.h"
 
-Player::Player() : hand(), handValue(0), busted(false), curBet(0), chips(100) {}
+Player::Player(int initialBankroll, IBetStrategy* betStrategy)
+    : hand(), handValue(0), busted(false), curBet(0), bankroll(initialBankroll), betStrategy(betStrategy) {}
 
 void Player::addCard(Card card) {
     std::cout << "Player Added Card: " << card << std::endl;
@@ -24,6 +25,7 @@ void Player::addCard(Card card) {
 
     std::cout << "New value: " << handValue << std::endl;
 }
+
 void Player::reset() {
     hand.clear();
     handValue = 0;
@@ -46,30 +48,26 @@ void Player::setBusted(bool val) {
     busted = val;
 }
 
-int Player::getChips() const {
-    return chips;
+int Player::getBankroll() const {
+    return bankroll;
 }
 
-void Player::addChips(int val) {
-    chips += val;
+void Player::updateBankroll(int val) {
+    bankroll += val;
 }
 
-void Player::removeChips(int val) {
-    chips -= val;
+int Player::makeBet() {
+    curBet = betStrategy->bet(bankroll);
+    return curBet;
 }
-
-void Player::setCurBet(int val) {
-    curBet = val;
-}
-
 int Player::getCurBet() const {
     return curBet;
 }
 
-void Player::setCurSideBet(int val) {
-    curSideBet = val;
+int Player::makeSideBet() {
+    curSideBet = betStrategy->sideBet(bankroll);
+    return curSideBet;
 }
-
 int Player::getCurSideBet() const {
     return curSideBet;
 }

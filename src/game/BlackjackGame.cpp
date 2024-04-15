@@ -4,7 +4,7 @@
 BlackjackGame::BlackjackGame(const GameConfig& config)
     : fullDeck(config.numDecks), dealer(), config(config) {
     for (int i = 0; i < config.numPlayers; i++) {
-        players.push_back(Player());
+        players.push_back(Player(100, new ConsBetStrategy()));
     }
     fullDeck.shuffle();
 }
@@ -13,25 +13,12 @@ Card BlackjackGame::getCard() {
     return fullDeck.drawCard();
 }
 
-int BlackjackGame::askForBet(const std::string& prompt) {
-    std::cout << prompt << std::endl;
-    int bet;
-    while (!(std::cin >> bet)) {
-        std::cout << "Invalid input. Please enter a number: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
-    return bet;
-}
-
 void BlackjackGame::getBets() {
     for (auto& player : players) {
-        int bet = config.standardBets ? 10 : askForBet("How much would you like to bet?");
-        player.setCurBet(bet);
+        int bet = player.makeBet();
 
         if (config.isPlus3) {
-            int sideBet = config.standardBets ? 5 : askForBet("How much would you like to side bet?");
-            player.setCurSideBet(sideBet);
+            int sideBet = player.makeSideBet();
         }
     }
 }
@@ -95,23 +82,23 @@ void BlackjackGame::finishRound() {
 
         if (dealerBusted && !playerBusted) {
             std::cout << "Player wins " << player.getCurBet() << " chips!" << std::endl;
-            player.addChips(player.getCurBet());
+            player.updateBankroll(player.getCurBet());
             player.setOutcome("win");
         } else if (!playerBusted && playerValue > dealerValue) {
             std::cout << "Player wins " << player.getCurBet() << " chips!" << std::endl;
-            player.addChips(player.getCurBet());
+            player.updateBankroll(player.getCurBet());
             player.setOutcome("win");
         } else if (!playerBusted && playerValue == dealerValue) {
             std::cout << "Player ties!" << std::endl;
             player.setOutcome("tie");
         } else {
             std::cout << "Player loses " << player.getCurBet() << " chips!" << std::endl;
-            player.removeChips(player.getCurBet());
+            player.updateBankroll(-player.getCurBet());
             player.setOutcome("lose");
         }
     }
     for (std::size_t i = 0; i < players.size(); ++i) {
-        std::cout << "Player " << i << " has " << players[i].getChips() << " chips" << std::endl;
+        std::cout << "Player " << i << " has " << players[i].getBankroll() << " chips" << std::endl;
     }
 }
 
@@ -121,7 +108,7 @@ bool BlackjackGame::isStraight(Card card1, Card card2, Card card3) {
     return (ranks[1] == ranks[0] + 1) && (ranks[2] == ranks[1] + 1);
 }
 
-void BlackjackGame::plus3Check() {
+void BlackjackGame::finishSideBet() {
     Card dealerUpCard = dealer.getUpCard();
     for (auto& player : players) {
         Card playerCard1 = player.getHand()[0];
@@ -134,12 +121,12 @@ void BlackjackGame::plus3Check() {
             // Plus3 pays 9 to 1 on the side bet
             std::cout << "Side Bet: Player wins " << player.getCurSideBet() * 9 << " chips!" << std::endl;
             player.setSideOutcome("win");
-            player.addChips(player.getCurSideBet() * 9);
+            player.updateBankroll(player.getCurSideBet() * 9);
         }
         else {
             std::cout << "Side Bet: Player loses " << player.getCurSideBet() << " chips!" << std::endl;
             player.setSideOutcome("lose");
-            player.removeChips(player.getCurSideBet());
+            player.updateBankroll(-player.getCurSideBet());
         }
     }
 }
@@ -148,7 +135,7 @@ void BlackjackGame::play() {
     getBets();
     dealInitialRound();
     if (config.isPlus3) {
-        plus3Check();
+        finishSideBet();
     }
     dealRound();
     finishRound();

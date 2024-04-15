@@ -6,6 +6,8 @@
 #include "Player.h"
 #include "Dealer.h"
 #include "GameLogger.h"
+#include "ConsBetStrategy.h"
+#include "AggrBetStrategy.h"
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -36,14 +38,13 @@ private:
     GameLogger logger;
 
     Card getCard();
-    int askForBet(const std::string& prompt);
     void getBets();
     void dealInitialRound();
     void dealRound();
     void dealCardsToDealer();
     void finishRound();
     bool isStraight(Card card1, Card card2, Card card3);
-    void plus3Check();
+    void finishSideBet();
     
 public:
     BlackjackGame(const GameConfig& config);

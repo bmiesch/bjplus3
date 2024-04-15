@@ -3,43 +3,34 @@
 
 #include "Card.h"
 #include <vector>
+#include "IBetStrategy.h"
 
 class Player {
 public:
-    Player();
-
-    void addCard(Card card);
+    Player(int initialBankroll, IBetStrategy* betStrategy);
 
     void reset();
 
-    std::vector<Card> getHand() const;
+    void addCard(Card card);
 
+    std::vector<Card> getHand() const;
     int getHandValue() const;
 
     bool isBusted() const;
-
     void setBusted(bool val);
 
-    int getChips() const;
+    int getBankroll() const;
+    void updateBankroll(int val);
 
-    void addChips(int val);
-
-    void removeChips(int val);
-
-    void setCurBet(int val);
-
+    int makeBet();
     int getCurBet() const;
-
-    void setCurSideBet(int val);
-
+    int makeSideBet();
     int getCurSideBet() const;
 
     std::string getOutcome() const;
-
     void setOutcome(std::string val);
 
     std::string getSideOutcome() const;
-
     void setSideOutcome(std::string val);
 
 private:
@@ -49,10 +40,12 @@ private:
 
     int curBet;
     int curSideBet;
-    int chips;
+    int bankroll;
     
     std::string outcome;
     std::string sideOutcome;
+
+    IBetStrategy* betStrategy;
 };
 
 #endif // PLAYER_H
