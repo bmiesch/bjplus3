@@ -1,29 +1,11 @@
 #include "Player.h"
 
-Player::Player(int initialBankroll, IBetStrategy* betStrategy)
-    : hand(), handValue(0), busted(false), curBet(0), bankroll(initialBankroll), betStrategy(betStrategy) {}
+Player::Player(int initialBankroll, IBetStrategy* betStrategy, IPlayStrategy* playStrategy)
+    : hand(), handValue(0), busted(false), curBet(0), bankroll(initialBankroll), betStrategy(betStrategy), playStrategy(playStrategy) {}
 
 void Player::addCard(Card card) {
-    std::cout << "Player Added Card: " << card << std::endl;
     hand.push_back(card);
-
-    // Recalculate hand value from scratch
-    handValue = 0;
-    int aceCount = 0;
-
-    for (const Card& c : hand) {
-        handValue += c.getValue();
-        if (c.getRank() == Card::ACE) {
-            aceCount++;
-        }
-    }
-
-    while (handValue > 21 && aceCount > 0) {
-        handValue -= 10;
-        aceCount--;
-    }
-
-    std::cout << "New value: " << handValue << std::endl;
+    handValue = calculateHandValue(hand);
 }
 
 void Player::reset() {
@@ -60,6 +42,9 @@ int Player::makeBet() {
     curBet = betStrategy->bet(bankroll);
     return curBet;
 }
+void Player::setCurBet(int val) {
+    curBet = val;
+}
 int Player::getCurBet() const {
     return curBet;
 }
@@ -86,5 +71,9 @@ std::string Player::getSideOutcome() const {
 
 void Player::setSideOutcome(std::string str) {
     sideOutcome = str;
+}
+
+PlayerAction Player::act(Card dealerUpCard, bool canSplit) {
+    return playStrategy->decideAction(hand, dealerUpCard, canSplit);
 }
 

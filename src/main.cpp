@@ -1,7 +1,10 @@
 #include "BlackjackGame.h"
 
 int main() {
-    const GameConfig config(1, 6, true, true);
+    std::vector<Player> players;
+    players.push_back(Player(100, new ConsBetStrategy(), new BasicStrategy()));
+    players.push_back(Player(100, new AggrBetStrategy(), new BasicStrategy()));
+    const GameConfig config(players, 6, true);
     BlackjackGame game(config);
     for (int i = 0; i < 10; i++) {
         game.play();

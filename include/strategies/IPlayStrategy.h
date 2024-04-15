@@ -3,12 +3,11 @@
 
 #include <vector>
 #include "Card.h"
+#include "utils.h"
 
 class IPlayStrategy {
 public:
-    virtual bool hit(std::vector<Card> hand, Card dealerCard) = 0;
-    virtual bool doubleDown(std::vector<Card> hand, Card dealerCard) = 0;
-    virtual bool split(std::vector<Card> hand, Card dealerCard) = 0;
+    virtual PlayerAction decideAction(const std::vector<Card>& hand, Card dealerCard, bool canSplit) = 0;
     virtual ~IPlayStrategy() {}
 };
 

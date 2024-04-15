@@ -3,26 +3,8 @@
 Dealer::Dealer() : hand(), handValue(0), busted(false) {}
 
 void Dealer::addCard(Card card) {
-    std::cout << "Dealer Added Card: " << card << std::endl;
     hand.push_back(card);
-
-    // Recalculate hand value from scratch
-    handValue = 0;
-    int aceCount = 0;
-
-    for (const Card& c : hand) {
-        handValue += c.getValue();
-        if (c.getRank() == Card::ACE) {
-            aceCount++;
-        }
-    }
-
-    while (handValue > 21 && aceCount > 0) {
-        handValue -= 10;
-        aceCount--;
-    }
-
-    std::cout << "New value: " << handValue << std::endl;
+    handValue = calculateHandValue(hand);
 }
 
 int Dealer::getHandValue() const {

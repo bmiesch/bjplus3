@@ -4,10 +4,12 @@
 #include "Card.h"
 #include <vector>
 #include "IBetStrategy.h"
+#include "IPlayStrategy.h"
+#include "utils.h"
 
 class Player {
 public:
-    Player(int initialBankroll, IBetStrategy* betStrategy);
+    Player(int initialBankroll, IBetStrategy* betStrategy, IPlayStrategy* playStrategy);
 
     void reset();
 
@@ -23,6 +25,7 @@ public:
     void updateBankroll(int val);
 
     int makeBet();
+    void setCurBet(int val);
     int getCurBet() const;
     int makeSideBet();
     int getCurSideBet() const;
@@ -32,6 +35,8 @@ public:
 
     std::string getSideOutcome() const;
     void setSideOutcome(std::string val);
+
+    PlayerAction act(Card dealerUpCard, bool canSplit);
 
 private:
     std::vector<Card> hand;
@@ -46,6 +51,7 @@ private:
     std::string sideOutcome;
 
     IBetStrategy* betStrategy;
+    IPlayStrategy* playStrategy;
 };
 
 #endif // PLAYER_H

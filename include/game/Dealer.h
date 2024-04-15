@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "Card.h"
+#include "utils.h"
 
 class Dealer {
 public:

@@ -8,6 +8,7 @@
 #include "GameLogger.h"
 #include "ConsBetStrategy.h"
 #include "AggrBetStrategy.h"
+#include "BasicStrategy.h"
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -19,13 +20,12 @@ using json = nlohmann::ordered_json;
 
 class GameConfig {
 public:
-    int numPlayers;
+    std::vector<Player> players;
     int numDecks;
     bool isPlus3;
-    bool standardBets;
 
-    GameConfig(int numPlayers, int numDecks, bool isPlus3, bool standardBets)
-        : numPlayers(numPlayers), numDecks(numDecks), isPlus3(isPlus3), standardBets(standardBets) {}
+    GameConfig(std::vector<Player> players, int numDecks, bool isPlus3)
+        : players(players), numDecks(numDecks), isPlus3(isPlus3) {}
 };
 
 
@@ -33,7 +33,6 @@ class BlackjackGame {
 private:
     Deck fullDeck;
     Dealer dealer;
-    std::vector<Player> players;
     GameConfig config;
     GameLogger logger;
 
