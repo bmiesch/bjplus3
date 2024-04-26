@@ -36,7 +36,6 @@ private:
     GameConfig config;
     GameLogger logger;
 
-    Card getCard();
     void getBets();
     void dealInitialRound();
     void dealRound();

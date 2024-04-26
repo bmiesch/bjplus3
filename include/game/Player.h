@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include "Card.h"
+#include "Hand.h"
 #include <vector>
 #include "IBetStrategy.h"
 #include "IPlayStrategy.h"
@@ -13,13 +14,13 @@ public:
 
     void reset();
 
-    void addCard(Card card);
+    // Should addCard handle multiple hands?
+    // void addCard(Card card);
 
-    std::vector<Card> getHand() const;
-    int getHandValue() const;
-
-    bool isBusted() const;
-    void setBusted(bool val);
+    void createHand(int bet);
+    int getNumHands() const;
+    Hand* getHand(int handIndex);
+    void splitHand(int handIndex);
 
     int getBankroll() const;
     void updateBankroll(int val);
@@ -36,12 +37,10 @@ public:
     std::string getSideOutcome() const;
     void setSideOutcome(std::string val);
 
-    PlayerAction act(Card dealerUpCard, bool canSplit);
+    PlayerAction act(int handIndex, Card dealerUpCard, bool canSplit);
 
 private:
-    std::vector<Card> hand;
-    int handValue;
-    bool busted;
+    std::vector<Hand> hands;
 
     int curBet;
     int curSideBet;

@@ -1,11 +1,11 @@
 #include "utils.h"
 #include "Card.h"
 
-int calculateHandValue(const std::vector<Card>& hand) {
+int calculateHandValue(Hand* hand) {
     int val = 0;
     int aceCount = 0;
 
-    for (const Card& c : hand) {
+    for (const Card& c : hand->getCards()) {
         val += c.getValue();
         if (c.getRank() == Card::ACE) {
             aceCount++;
@@ -21,11 +21,11 @@ int calculateHandValue(const std::vector<Card>& hand) {
 }
 
 
-bool isHandSoft(const std::vector<Card>& hand) {
+bool isHandSoft(Hand* hand) {
     int total = 0;
     bool hasAce = false;
 
-    for (const Card& card : hand) {
+    for (const Card& card : hand->getCards()) {
         int value = card.getValue();
         total += value;
         if (card.getRank() == Card::ACE) {

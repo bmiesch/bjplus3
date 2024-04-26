@@ -1,7 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "Card.h"
+#include "Hand.h"
 #include <vector>
 
 enum class PlayerAction {
@@ -11,8 +11,8 @@ enum class PlayerAction {
     SPLIT
 };
 
-int calculateHandValue(const std::vector<Card>& hand);
+int calculateHandValue(Hand* hand);
 
-bool isHandSoft(const std::vector<Card>& hand);
+bool isHandSoft(Hand* hand);
 
 #endif // UTILS_H

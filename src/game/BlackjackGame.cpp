@@ -6,9 +6,9 @@ BlackjackGame::BlackjackGame(const GameConfig& config)
     fullDeck.shuffle();
 }
 
-Card BlackjackGame::getCard() {
-    return fullDeck.drawCard();
-}
+// Card BlackjackGame::getCard() {
+//     return fullDeck.drawCard();
+// }
 
 void BlackjackGame::getBets() {
     for (auto& player : config.players) {
@@ -23,12 +23,15 @@ void BlackjackGame::getBets() {
 void BlackjackGame::dealInitialRound() {
     for (int i = 0; i < 2; i++) {
         for(int j = 0; j < config.players.size(); j++) {
-            config.players[j].addCard(fullDeck.drawCard());
+            if (i == 0) {
+                config.players[i].createHand(config.players[i].getCurBet());
+            }
+            config.players[j].getHand(0)->addCard(fullDeck.drawCard());
         }
         dealer.addCard(fullDeck.drawCard());
     }
     for (std::size_t i = 0; i < config.players.size(); ++i) {
-        for (auto& card : config.players[i].getHand()) {
+        for (auto& card : config.players[i].getHand(0)->getCards()) {
             std::cout << "Player " << i << " has " << card.toString() << " ";
         }
         std::cout << std::endl;
@@ -37,47 +40,107 @@ void BlackjackGame::dealInitialRound() {
 }
 
 void BlackjackGame::dealRound() {
-    bool allPlayersBusted = true;
+    bool allHandsBusted = true;
 
     for (auto& player : config.players) {
-        bool isStanding = false;
+        for (size_t handIndex = 0; handIndex < player.getNumHands(); ++handIndex) {
+            bool isStanding = false;
 
-        while (!player.isBusted() && player.getHandValue() < 21 && !isStanding) {
-            Card dealerUpCard = dealer.getUpCard();
-            bool canSplit = false;
-            PlayerAction action = player.act(dealerUpCard, canSplit);
+            while (!player.getHand(handIndex)->isBusted() && player.getHand(handIndex)->getValue() < 21 && !isStanding) {
+                Card dealerUpCard = dealer.getUpCard();
+                bool canSplit = false;
+                PlayerAction action = player.act(handIndex, dealerUpCard, canSplit);
 
-            switch (action) {
-                case PlayerAction::HIT:
-                    std::cout << "Player hits!" << std::endl;
-                    player.addCard(fullDeck.drawCard());
-                    break;
-                case PlayerAction::STAND:
-                    std::cout << "Player stands!" << std::endl;
-                    isStanding = true;
-                    break;
-                case PlayerAction::DOUBLE_DOWN:
-                    std::cout << "Player doubles down!" << std::endl;
-                    player.addCard(fullDeck.drawCard());
-                    player.setCurBet(player.getCurBet() * 2);
-                    isStanding = true; 
-                    break;
-                case PlayerAction::SPLIT:
-                    // TODO: Handle split logic
-                    break;
+                switch (action) {
+                    case PlayerAction::HIT:
+                        std::cout << "Player hits!" << std::endl;
+                        player.getHand(handIndex)->addCard(fullDeck.drawCard());
+                        break;
+                    case PlayerAction::STAND:
+                        std::cout << "Player stands!" << std::endl;
+                        isStanding = true;
+                        break;
+                    case PlayerAction::DOUBLE_DOWN:
+                        std::cout << "Player doubles down!" << std::endl;
+                        player.getHand(handIndex)->addCard(fullDeck.drawCard());
+                        player.getHand(handIndex)->setBet(player.getHand(handIndex)->getBet() * 2);
+                        isStanding = true; 
+                        break;
+                    case PlayerAction::SPLIT:
+                        // TODO: Handle split logic
+                        break;
+                }
             }
-        }
 
-        if (player.getHandValue() > 21) {
-            player.setBusted(true);
-            std::cout << "Player busted!" << std::endl;
-        } else {
-            allPlayersBusted = false;
-            std::cout << "Player has " << player.getHandValue() << std::endl;
+            if (player.getHand(handIndex)->getValue() > 21) {
+                player.getHand(handIndex)->setBusted(true);
+                std::cout << "Player busted!" << std::endl;
+            } else {
+                allHandsBusted = false;
+                std::cout << "Player has " << player.getHand(handIndex)->getValue() << std::endl;
+            }
         }
     }
 
-    if (!allPlayersBusted) {
+    if (!allHandsBusted) {
+        dealCardsToDealer();
+    } else {
+        std::cout << "All players busted!" << std::endl;
+    }
+}
+
+
+void BlackjackGame::dealRound() {
+    bool allHandsBusted = true;
+
+    for (auto& player : config.players) {
+        size_t handIndex = 0;
+        while (handIndex < player.getNumHands()) {
+            Hand* curHand = player.getHand(handIndex);
+            bool isStanding = false;
+
+            while(!curHand->isBusted() && curHand->getValue() < 21 && !isStanding) {
+                Card dealerUpCard = dealer.getUpCard();
+                bool canSplit = false;
+                PlayerAction action = player.act(handIndex, dealerUpCard, canSplit);
+
+                switch (action) {
+                    case PlayerAction::HIT:
+                        std::cout << "Player hits on hand " << handIndex + 1 << "!" << std::endl;
+                        curHand->addCard(fullDeck.drawCard());
+                        break;
+                    case PlayerAction::STAND:
+                        std::cout << "Player stands on hand " << handIndex + 1 << "!" << std::endl;
+                        isStanding = true;
+                        break;
+                    case PlayerAction::DOUBLE_DOWN:
+                        std::cout << "Player doubles down on hand " << handIndex + 1 << "!" << std::endl;
+                        curHand->addCard(fullDeck.drawCard());
+                        curHand->setBet(curHand->getBet() * 2);
+                        isStanding = true;
+                        break;
+                    case PlayerAction::SPLIT:
+                        std::cout << "Player splits hand " << handIndex + 1 << "!" << std::endl;
+                        player.splitHand(handIndex); // This function needs to handle the logic of splitting
+                        curHand->addCard(fullDeck.drawCard());
+                        player.getHand(handIndex + 1)->addCard(fullDeck.drawCard());
+                        break;
+                }
+            }
+
+            if (curHand->getValue() > 21) {
+                curHand->setBusted(true);
+                std::cout << "Player's hand " << handIndex + 1 << " busted!" << std::endl;
+            } else {
+                allHandsBusted = false;
+                std::cout << "Player's hand " << handIndex + 1 << " has " << curHand->getValue() << std::endl;
+            }
+
+            handIndex++;
+        }
+    }
+
+    if (!allHandsBusted) {
         dealCardsToDealer();
     } else {
         std::cout << "All players busted!" << std::endl;

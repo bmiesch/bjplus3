@@ -1,12 +1,12 @@
 #include "Player.h"
 
 Player::Player(int initialBankroll, IBetStrategy* betStrategy, IPlayStrategy* playStrategy)
-    : hand(), handValue(0), busted(false), curBet(0), bankroll(initialBankroll), betStrategy(betStrategy), playStrategy(playStrategy) {}
+    : bankroll(initialBankroll), betStrategy(betStrategy), playStrategy(playStrategy) {}
 
-void Player::addCard(Card card) {
-    hand.push_back(card);
-    handValue = calculateHandValue(hand);
-}
+// void Player::addCard(Card card) {
+//     hand.push_back(card);
+//     handValue = calculateHandValue(hand);
+// }
 
 void Player::reset() {
     hand.clear();
@@ -14,8 +14,12 @@ void Player::reset() {
     busted = false;
 }
 
-std::vector<Card> Player::getHand() const {
-    return hand;
+Hand* Player::getHand(int handIndex) {
+    return &hands[handIndex];
+}
+
+Hand* Player::splitHand(int handIndex) {
+
 }
 
 int Player::getHandValue() const {
@@ -73,7 +77,7 @@ void Player::setSideOutcome(std::string str) {
     sideOutcome = str;
 }
 
-PlayerAction Player::act(Card dealerUpCard, bool canSplit) {
-    return playStrategy->decideAction(hand, dealerUpCard, canSplit);
+PlayerAction Player::act(int handIndex, Card dealerUpCard, bool canSplit) {
+    return playStrategy->decideAction(getHand(handIndex), dealerUpCard, canSplit);
 }
 

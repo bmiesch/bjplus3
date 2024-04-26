@@ -3,11 +3,12 @@
 
 #include <vector>
 #include "Card.h"
+#include "Hand.h"
 #include "utils.h"
 
 class IPlayStrategy {
 public:
-    virtual PlayerAction decideAction(const std::vector<Card>& hand, Card dealerCard, bool canSplit) = 0;
+    virtual PlayerAction decideAction(Hand* hand, Card dealerCard, bool canSplit) = 0;
     virtual ~IPlayStrategy() {}
 };
 

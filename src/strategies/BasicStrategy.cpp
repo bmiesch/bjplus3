@@ -3,7 +3,7 @@
 
 BasicStrategy::BasicStrategy() : IPlayStrategy() {}
 
-PlayerAction BasicStrategy::decideAction(const std::vector<Card>& hand, Card dealerCard, bool canSplit) {
+PlayerAction BasicStrategy::decideAction(Hand* hand, Card dealerCard, bool canSplit) {
     int handValue = calculateHandValue(hand);
     bool isSoft = isHandSoft(hand);
     int dealerUpCardValue = dealerCard.getValue();
@@ -15,7 +15,7 @@ PlayerAction BasicStrategy::decideAction(const std::vector<Card>& hand, Card dea
     }
 
     // Check for Double Down
-    if (hand.size() == 2 && (handValue == 9 && dealerUpCardValue >= 3 && dealerUpCardValue <= 6) ||
+    if (hand->getCards().size() == 2 && (handValue == 9 && dealerUpCardValue >= 3 && dealerUpCardValue <= 6) ||
         (handValue == 10 && dealerUpCardValue <= 9) ||
         (handValue == 11)) {
         return PlayerAction::DOUBLE_DOWN;
@@ -60,12 +60,12 @@ PlayerAction BasicStrategy::decideAction(const std::vector<Card>& hand, Card dea
     return PlayerAction::STAND;
 }
 
-bool BasicStrategy::shouldSplit(const std::vector<Card>& hand, Card dealerCard) {
-    if (hand.size() != 2 || hand[0].getRank() != hand[1].getRank()) {
+bool BasicStrategy::shouldSplit(Hand* hand, Card dealerCard) {
+    if (hand->getCards().size() != 2 || hand->getCards()[0].getRank() != hand->getCards()[1].getRank()) {
         return false;
     }
 
-    int rank = hand[0].getRank();
+    int rank = hand->getCards()[0].getRank();
     int dealerValue = dealerCard.getValue();
 
     switch (rank) {
