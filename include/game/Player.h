@@ -7,15 +7,20 @@
 #include "IBetStrategy.h"
 #include "IPlayStrategy.h"
 #include "utils.h"
+#include <memory>
 
 class Player {
 public:
-    Player(int initialBankroll, IBetStrategy* betStrategy, IPlayStrategy* playStrategy);
+    Player(int id, int initialBankroll, IBetStrategy* betStrategy, IPlayStrategy* playStrategy);
+    ~Player();
+
+    // Copy constructor and copy assignment operator should be handled properly if you allow copying of Player objects.
+    Player(const Player& other) = delete;
+    Player& operator=(const Player& other) = delete;
 
     void reset();
 
-    // Should addCard handle multiple hands?
-    // void addCard(Card card);
+    int getId() const;
 
     void createHand(int bet);
     int getNumHands() const;
@@ -31,23 +36,15 @@ public:
     int makeSideBet();
     int getCurSideBet() const;
 
-    std::string getOutcome() const;
-    void setOutcome(std::string val);
-
-    std::string getSideOutcome() const;
-    void setSideOutcome(std::string val);
-
     PlayerAction act(int handIndex, Card dealerUpCard, bool canSplit);
 
 private:
     std::vector<Hand> hands;
 
+    int id;
     int curBet;
     int curSideBet;
     int bankroll;
-    
-    std::string outcome;
-    std::string sideOutcome;
 
     IBetStrategy* betStrategy;
     IPlayStrategy* playStrategy;

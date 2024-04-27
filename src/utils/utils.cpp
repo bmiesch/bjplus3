@@ -20,6 +20,25 @@ int calculateHandValue(Hand* hand) {
     return val;
 }
 
+int calculateHandValue(std::vector<Card> hand) {
+    int val = 0;
+    int aceCount = 0;
+
+    for (const Card& c : hand) {
+        val += c.getValue();
+        if (c.getRank() == Card::ACE) {
+            aceCount++;
+        }
+    }
+
+    while (val > 21 && aceCount > 0) {
+        val -= 10;
+        aceCount--;
+    }
+
+    return val;
+}
+
 
 bool isHandSoft(Hand* hand) {
     int total = 0;

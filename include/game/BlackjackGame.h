@@ -20,11 +20,11 @@ using json = nlohmann::ordered_json;
 
 class GameConfig {
 public:
-    std::vector<Player> players;
+    std::vector<Player*> players;
     int numDecks;
     bool isPlus3;
 
-    GameConfig(std::vector<Player> players, int numDecks, bool isPlus3)
+    GameConfig(const std::vector<Player*>& players, int numDecks, bool isPlus3)
         : players(players), numDecks(numDecks), isPlus3(isPlus3) {}
 };
 
@@ -42,6 +42,7 @@ private:
     void dealCardsToDealer();
     void finishRound();
     bool isStraight(Card card1, Card card2, Card card3);
+    // As of now only one side bet is supported
     void finishSideBet();
     
 public:

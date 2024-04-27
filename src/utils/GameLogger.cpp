@@ -1,6 +1,6 @@
 #include "GameLogger.h"
 
-void GameLogger::logGameResult(int gameID, const Dealer& dealer, const std::vector<Player>& players, bool isPlus3) {
+void GameLogger::logGameResult(int gameID, const Dealer& dealer, std::vector<Player*>& players, bool isPlus3) {
     json result;
     result["gameID"] = gameID;
     result["isPlus3"] = isPlus3;
@@ -15,24 +15,31 @@ void GameLogger::logGameResult(int gameID, const Dealer& dealer, const std::vect
     result["dealer"] = dealerJson;
 
     std::vector<json> playersJson;
-    for (const auto& player : players) {
+    for (auto& player : players) {
         json playerJson;
-        playerJson["final_hand"] = player.getHandValue();
-        std::vector<std::string> cards;
-        for (const auto& card : player.getHand()) {
-            cards.push_back(card.toString());
-        }
-        playerJson["cards"] = cards;
-        playerJson["main_outcome"] = player.getOutcome();
-        playerJson["main_bet"] = player.getCurBet();
         if (isPlus3) {
-            playerJson["side_outcome"] = player.getSideOutcome();
-            playerJson["side_bet"] = player.getCurSideBet();
+            playerJson["side_outcome"] = player->getHand(0)->getSideOutcome();
+            playerJson["side_bet"] = player->getHand(0)->getSideBet();
         } else {
             playerJson["side_outcome"] = "";
             playerJson["side_bet"] = 0;
         }
-        playerJson["bankroll"] = player.getBankroll();
+        playerJson["bankroll"] = player->getBankroll();
+
+        std::vector<json> handsJson;
+        for (int handIndex = 0; handIndex < player->getNumHands(); ++handIndex) {
+            json handJson;
+            handJson["final_hand"] = player->getHand(handIndex)->getValue();
+            std::vector<std::string> cards;
+            for (const auto& card : player->getHand(handIndex)->getCards()) {
+                cards.push_back(card.toString());
+            }
+            handJson["cards"] = cards;
+            handJson["main_outcome"] = player->getHand(handIndex)->getOutcome();
+            handJson["main_bet"] = player->getHand(handIndex)->getBet();
+            handsJson.push_back(handJson);
+        }
+        playerJson["hands"] = handsJson;
         playersJson.push_back(playerJson);
     }
     result["players"] = playersJson;

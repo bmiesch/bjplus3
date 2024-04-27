@@ -1,37 +1,42 @@
 #include "Player.h"
 
-Player::Player(int initialBankroll, IBetStrategy* betStrategy, IPlayStrategy* playStrategy)
-    : bankroll(initialBankroll), betStrategy(betStrategy), playStrategy(playStrategy) {}
+Player::Player(int id, int initialBankroll, IBetStrategy* betStrategy, IPlayStrategy* playStrategy)
+    : id(id), bankroll(initialBankroll), betStrategy(betStrategy), playStrategy(playStrategy) {}
 
-// void Player::addCard(Card card) {
-//     hand.push_back(card);
-//     handValue = calculateHandValue(hand);
-// }
+Player::~Player() {
+    delete betStrategy;
+    delete playStrategy;
+}
 
 void Player::reset() {
-    hand.clear();
-    handValue = 0;
-    busted = false;
+    for (Hand& hand : hands) {
+        hand.clear();
+    }
+    hands.clear();
+}
+
+int Player::getId() const {
+    return id;
+}
+
+void Player::createHand(int bet) {
+    hands.push_back(Hand(bet));
+}
+
+int Player::getNumHands() const {
+    return hands.size();
 }
 
 Hand* Player::getHand(int handIndex) {
     return &hands[handIndex];
 }
 
-Hand* Player::splitHand(int handIndex) {
+void Player::splitHand(int handIndex) {
+    Hand newHand(hands[handIndex].getBet());
+    newHand.addCard(hands[handIndex].getCards()[1]);
+    hands[handIndex].removeCardAt(1);
 
-}
-
-int Player::getHandValue() const {
-    return handValue;
-}
-
-bool Player::isBusted() const {
-    return busted;
-}
-
-void Player::setBusted(bool val) {
-    busted = val;
+    hands.insert(hands.begin() + handIndex, newHand);
 }
 
 int Player::getBankroll() const {
@@ -59,22 +64,6 @@ int Player::makeSideBet() {
 }
 int Player::getCurSideBet() const {
     return curSideBet;
-}
-
-std::string Player::getOutcome() const {
-    return outcome;
-}
-
-void Player::setOutcome(std::string str) {
-    outcome = str;
-}
-
-std::string Player::getSideOutcome() const {
-    return sideOutcome;
-}
-
-void Player::setSideOutcome(std::string str) {
-    sideOutcome = str;
 }
 
 PlayerAction Player::act(int handIndex, Card dealerUpCard, bool canSplit) {

@@ -13,7 +13,7 @@ using json = nlohmann::ordered_json;
 
 class GameLogger {
 public:
-    void logGameResult(int gameID, const Dealer& dealer, const std::vector<Player>& players, bool isPlus3);
+    void logGameResult(int gameID, const Dealer& dealer, std::vector<Player*>& players, bool isPlus3);
     void writeResultsToFile(const std::string& filename);
 private:
     json resultsBuffer;

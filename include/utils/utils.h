@@ -12,6 +12,7 @@ enum class PlayerAction {
 };
 
 int calculateHandValue(Hand* hand);
+int calculateHandValue(std::vector<Card> hand);
 
 bool isHandSoft(Hand* hand);
 
