@@ -5,49 +5,44 @@
 #include "Hand.h"
 #include <vector>
 #include "IBetStrategy.h"
-#include "IPlayStrategy.h"
 #include "utils.h"
 #include <memory>
 
 class Player {
 public:
-    Player(int id, int initialBankroll, IBetStrategy* betStrategy, IPlayStrategy* playStrategy);
-    ~Player();
+    Player(int id, int initialBankroll, IBetStrategy* betStrategy)
+        : id(id), bankroll(initialBankroll), betStrategy(betStrategy) {}
 
-    // Copy constructor and copy assignment operator should be handled properly if you allow copying of Player objects.
+    virtual ~Player() {
+        delete betStrategy;
+    }
+
     Player(const Player& other) = delete;
     Player& operator=(const Player& other) = delete;
 
+    virtual PlayerAction act(int handIndex, Card dealerUpCard, bool canSplit) = 0;
+
     void reset();
-
     int getId() const;
-
     void createHand(int bet);
     int getNumHands() const;
     Hand* getHand(int handIndex);
     void splitHand(int handIndex);
-
     int getBankroll() const;
     void updateBankroll(int val);
-
     int makeBet();
     void setCurBet(int val);
     int getCurBet() const;
     int makeSideBet();
     int getCurSideBet() const;
 
-    PlayerAction act(int handIndex, Card dealerUpCard, bool canSplit);
-
 private:
     std::vector<Hand> hands;
-
     int id;
     int curBet;
     int curSideBet;
     int bankroll;
-
     IBetStrategy* betStrategy;
-    IPlayStrategy* playStrategy;
 };
 
 #endif // PLAYER_H

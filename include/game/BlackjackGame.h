@@ -3,7 +3,9 @@
 
 #include "Card.h"
 #include "Deck.h"
-#include "Player.h"
+#include "AIPlayer.h"
+#include "OllamaClient.h"
+#include "StandardPlayer.h"
 #include "Dealer.h"
 #include "GameLogger.h"
 #include "ConsBetStrategy.h"

@@ -1,12 +1,5 @@
 #include "Player.h"
 
-Player::Player(int id, int initialBankroll, IBetStrategy* betStrategy, IPlayStrategy* playStrategy)
-    : id(id), bankroll(initialBankroll), betStrategy(betStrategy), playStrategy(playStrategy) {}
-
-Player::~Player() {
-    delete betStrategy;
-    delete playStrategy;
-}
 
 void Player::reset() {
     for (Hand& hand : hands) {
@@ -64,9 +57,5 @@ int Player::makeSideBet() {
 }
 int Player::getCurSideBet() const {
     return curSideBet;
-}
-
-PlayerAction Player::act(int handIndex, Card dealerUpCard, bool canSplit) {
-    return playStrategy->decideAction(getHand(handIndex), dealerUpCard, canSplit);
 }
 
