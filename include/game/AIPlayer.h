@@ -6,8 +6,8 @@
 
 class AIPlayer : public Player {
 public:
-    AIPlayer(int id, int initialBankroll, IBetStrategy* betStrategy, LLMClient* client)
-        : Player(id, initialBankroll, betStrategy), client(client) {}
+    AIPlayer(int id, int initialBankroll, int initialNumHands, IBetStrategy* betStrategy, LLMClient* client)
+        : Player(id, initialBankroll, initialNumHands, betStrategy), client(client) {}
     
     ~AIPlayer() override {
         delete client;

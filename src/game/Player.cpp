@@ -2,10 +2,10 @@
 
 
 void Player::reset() {
-    for (Hand& hand : hands) {
+    for (Hand& hand : this->hands) {
         hand.clear();
     }
-    hands.clear();
+    this->hands.clear();
 }
 
 int Player::getId() const {
@@ -40,22 +40,24 @@ void Player::updateBankroll(int val) {
     bankroll += val;
 }
 
-int Player::makeBet() {
-    curBet = betStrategy->bet(bankroll);
-    return curBet;
-}
-void Player::setCurBet(int val) {
-    curBet = val;
-}
-int Player::getCurBet() const {
-    return curBet;
+int Player::getInitialNumHands() const {
+    return initialNumHands;
 }
 
+int Player::makeBet() {
+    return betStrategy->bet(bankroll);
+}
+// void Player::setCurBet(int val) {
+//     curBet = val;
+// }
+// int Player::getCurBet() const {
+//     return curBet;
+// }
+
 int Player::makeSideBet() {
-    curSideBet = betStrategy->sideBet(bankroll);
-    return curSideBet;
+    return betStrategy->sideBet(bankroll);
 }
-int Player::getCurSideBet() const {
-    return curSideBet;
-}
+// int Player::getCurSideBet() const {
+//     return curSideBet;
+// }
 

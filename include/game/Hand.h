@@ -15,12 +15,12 @@ public:
     void setBusted(bool busted);
 
     int getBet() const;
-    void setBet(int bet);
+    void setBet(int val);
     std::string getOutcome() const;
     void setOutcome(std::string outcome);
 
     int getSideBet() const;
-    void setSideBet(int sideBet);
+    void setSideBet(int val);
     std::string getSideOutcome() const;
     void setSideOutcome(std::string sideOutcome);
 

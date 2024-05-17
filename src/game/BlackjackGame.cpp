@@ -6,34 +6,37 @@ BlackjackGame::BlackjackGame(const GameConfig& config)
     fullDeck.shuffle();
 }
 
-void BlackjackGame::getBets() {
-    for (auto& player : config.players) {
-        int bet = player->makeBet();
-
-        if (config.isPlus3) {
-            int sideBet = player->makeSideBet();
-        }
-    }
-}
-
 void BlackjackGame::dealInitialRound() {
     for (auto& player : config.players) {
-        player->createHand(player->getCurBet());
+        for (int i = 0; i < player->getInitialNumHands(); i++) {
+            player->createHand(player->makeBet());
+
+            if (config.isPlus3) {
+                Hand* curHand = player->getHand(i);
+                curHand->setSideBet(player->makeSideBet());
+            }
+        }
     }
 
     for (int i = 0; i < 2; i++) {
         for (auto& player : config.players) {
-            player->getHand(0)->addCard(fullDeck.drawCard());
+            for (int i = 0; i < player->getInitialNumHands(); i++) {
+                player->getHand(i)->addCard(fullDeck.drawCard());
+            }
         }
         dealer.addCard(fullDeck.drawCard());
     }
 
     for (std::size_t i = 0; i < config.players.size(); ++i) {
-        for (auto& card : config.players[i]->getHand(0)->getCards()) {
-            std::cout << "Player " << i << " has " << card.toString() << " ";
+        for (size_t handIndex = 0; handIndex < config.players[i]->getNumHands(); ++handIndex) {
+            std::cout << "Player " << i << " hand " << handIndex + 1 << " has: ";
+            for (auto& card : config.players[i]->getHand(handIndex)->getCards()) {
+                std::cout << card.toString() << " ";
+            }
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
     }
+
     std::cout << "Dealer has " << dealer.getHand()[0].toString() << " and a hidden card" << std::endl;
 }
 
@@ -53,21 +56,21 @@ void BlackjackGame::dealRound() {
 
                 switch (action) {
                     case PlayerAction::HIT:
-                        std::cout << "Player hits on hand " << handIndex + 1 << "!" << std::endl;
+                        std::cout << "Player " << player->getId() << " hits on hand " << handIndex + 1 << "!" << std::endl;
                         curHand->addCard(fullDeck.drawCard());
                         break;
                     case PlayerAction::STAND:
-                        std::cout << "Player stands on hand " << handIndex + 1 << "!" << std::endl;
+                        std::cout << "Player " << player->getId() << " stands on hand " << handIndex + 1 << "!" << std::endl;
                         isStanding = true;
                         break;
                     case PlayerAction::DOUBLE_DOWN:
-                        std::cout << "Player doubles down on hand " << handIndex + 1 << "!" << std::endl;
+                        std::cout << "Player " << player->getId() << " doubles down on hand " << handIndex + 1 << "!" << std::endl;
                         curHand->addCard(fullDeck.drawCard());
                         curHand->setBet(curHand->getBet() * 2);
                         isStanding = true;
                         break;
                     case PlayerAction::SPLIT:
-                        std::cout << "Player splits hand " << handIndex + 1 << "!" << std::endl;
+                        std::cout << "Player " << player->getId() << " splits hand " << handIndex + 1 << "!" << std::endl;
                         player->splitHand(handIndex);
                         curHand->addCard(fullDeck.drawCard());
                         player->getHand(handIndex + 1)->addCard(fullDeck.drawCard());
@@ -77,10 +80,10 @@ void BlackjackGame::dealRound() {
 
             if (curHand->getValue() > 21) {
                 curHand->setBusted(true);
-                std::cout << "Player's hand " << handIndex + 1 << " busted!" << std::endl;
+                std::cout << "Player " << player->getId() << " hand " << handIndex + 1 << " busted!" << std::endl;
             } else {
                 allHandsBusted = false;
-                std::cout << "Player's hand " << handIndex + 1 << " is " << curHand->getValue() << std::endl;
+                std::cout << "Player " << player->getId() << " hand " << handIndex + 1 << " is " << curHand->getValue() << std::endl;
             }
 
             handIndex++;
@@ -156,28 +159,31 @@ bool BlackjackGame::isStraight(Card card1, Card card2, Card card3) {
 void BlackjackGame::finishSideBet() {
     Card dealerUpCard = dealer.getUpCard();
     for (auto& player : config.players) {
-        Card playerCard1 = player->getHand(0)->getCards()[0];
-        Card playerCard2 = player->getHand(0)->getCards()[1];
+        for (size_t handIndex = 0; handIndex < player->getNumHands(); ++handIndex) {
+            const auto& cards = player->getHand(handIndex)->getCards();
+            if (cards.size() < 2) continue; // Ensure there are at least two cards in the hand
 
-        if ((playerCard1.getRank() == dealerUpCard.getRank() && playerCard2.getRank() == dealerUpCard.getRank())
-            || (playerCard1.getSuit() == dealerUpCard.getSuit() && playerCard2.getSuit() == dealerUpCard.getSuit())
-            || (isStraight(playerCard1, playerCard2, dealerUpCard))) {
+            Card playerCard1 = cards[0];
+            Card playerCard2 = cards[1];
 
-            // Plus3 pays 9 to 1 on the side bet
-            std::cout << "Side Bet: Player wins " << player->getCurSideBet() * 9 << " chips!" << std::endl;
-            player->getHand(0)->setSideOutcome("win");
-            player->updateBankroll(player->getCurSideBet() * 9);
-        }
-        else {
-            std::cout << "Side Bet: Player loses " << player->getCurSideBet() << " chips!" << std::endl;
-            player->getHand(0)->setSideOutcome("lose");
-            player->updateBankroll(-player->getCurSideBet());
+            if ((playerCard1.getRank() == dealerUpCard.getRank() && playerCard2.getRank() == dealerUpCard.getRank())
+                || (playerCard1.getSuit() == dealerUpCard.getSuit() && playerCard2.getSuit() == dealerUpCard.getSuit())
+                || (isStraight(playerCard1, playerCard2, dealerUpCard))) {
+
+                // Plus3 pays 9 to 1 on the side bet
+                std::cout << "Side Bet: Player wins " << player->getHand(handIndex)->getSideBet() * 9 << " chips!" << std::endl;
+                player->getHand(handIndex)->setSideOutcome("win");
+                player->updateBankroll(player->getHand(handIndex)->getSideBet() * 9);
+            } else {
+                std::cout << "Side Bet: Player loses " << player->getHand(handIndex)->getSideBet() << " chips!" << std::endl;
+                player->getHand(handIndex)->setSideOutcome("lose");
+                player->updateBankroll(-player->getHand(handIndex)->getSideBet());
+            }
         }
     }
 }
 
 void BlackjackGame::play() {
-    getBets();
     dealInitialRound();
     if (config.isPlus3) {
         finishSideBet();

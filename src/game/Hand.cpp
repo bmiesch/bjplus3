@@ -33,16 +33,16 @@ int Hand::getBet() const {
     return bet;
 }
 
-void Hand::setBet(int bet) {
-    this->bet = bet;
+void Hand::setBet(int val) {
+    this->bet = val;
 }
 
 int Hand::getSideBet() const {
     return sideBet;
 }
 
-void Hand::setSideBet(int sideBet) {
-    this->sideBet = sideBet;
+void Hand::setSideBet(int val) {
+    this->sideBet = val;
 }
 
 std::string Hand::getSideOutcome() const {
@@ -57,6 +57,10 @@ void Hand::clear() {
     cards.clear();
     value = 0;
     busted = false;
+    bet = 0;
+    sideBet = 0;
+    sideOutcome = "";
+    outcome = "";
 }
 
 void Hand::setOutcome(std::string outcome) {

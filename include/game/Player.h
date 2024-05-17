@@ -10,8 +10,8 @@
 
 class Player {
 public:
-    Player(int id, int initialBankroll, IBetStrategy* betStrategy)
-        : id(id), bankroll(initialBankroll), betStrategy(betStrategy) {}
+    Player(int id, int initialBankroll, int numHands, IBetStrategy* betStrategy)
+        : id(id), bankroll(initialBankroll), initialNumHands(numHands), betStrategy(betStrategy) {}
 
     virtual ~Player() {
         delete betStrategy;
@@ -30,11 +30,9 @@ public:
     void splitHand(int handIndex);
     int getBankroll() const;
     void updateBankroll(int val);
+    int getInitialNumHands() const;
     int makeBet();
-    void setCurBet(int val);
-    int getCurBet() const;
     int makeSideBet();
-    int getCurSideBet() const;
 
 private:
     std::vector<Hand> hands;
@@ -42,6 +40,7 @@ private:
     int curBet;
     int curSideBet;
     int bankroll;
+    int initialNumHands;
     IBetStrategy* betStrategy;
 };
 

@@ -6,8 +6,8 @@
 
 class StandardPlayer : public Player {
 public:
-    StandardPlayer(int id, int initialBankroll, IBetStrategy* betStrategy, IPlayStrategy* playStrategy)
-        : Player(id, initialBankroll, betStrategy), playStrategy(playStrategy) {}
+    StandardPlayer(int id, int initialBankroll, int initialNumHands, IBetStrategy* betStrategy, IPlayStrategy* playStrategy)
+        : Player(id, initialBankroll, initialNumHands, betStrategy), playStrategy(playStrategy) {}
 
     ~StandardPlayer() override {
         delete playStrategy;

@@ -3,8 +3,8 @@
 
 int main() {
     std::vector<Player*> players;
-    players.push_back(new StandardPlayer(1, 100, new ConsBetStrategy(), new BasicStrategy()));
-    players.push_back(new AIPlayer(1, 100, new ConsBetStrategy(), new OllamaClient()));
+    players.push_back(new StandardPlayer(1, 100, 1, new ConsBetStrategy(), new BasicStrategy()));
+    players.push_back(new AIPlayer(2, 100, 1, new ConsBetStrategy(), new OllamaClient()));
     
     const GameConfig config(players, 6, true);
     BlackjackGame game(config);
